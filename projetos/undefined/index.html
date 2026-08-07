@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ana Beatriz • Consultora Digital — Estratégias para criar conteúdo que converte no Instagram. Acesse meus links e transforme sua presença digital.">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0a0a0a">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="Ana Beatriz • Consultora Digital">
+    <meta property="og:description" content="Estratégias para criar conteúdo que converte no Instagram. Consultoria, cursos e materiais gratuitos.">
+    <meta property="og:image" content="https://exemplo.com/imagem-og.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://exemplo.com">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ana Beatriz • Consultora Digital">
+    <meta name="twitter:description" content="Estratégias para criar conteúdo que converte no Instagram">
+    <meta name="twitter:image" content="https://exemplo.com/imagem-og.jpg">
+
+    <title>Ana Beatriz • Consultora Digital | Links</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome 6 (Free Solid Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- Tailwind CSS CDN + Config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        destaque: '#ff6b35',
+                        'hover-destaque': '#ff8c42',
+                        cartoes: '#1a1a1a',
+                        fundo: '#0a0a0a',
+                        'texto-secundario': '#a0a0a0',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Tag Manager (head) -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-XXXXXXX');
+    </script>
+
+    <!-- Estilos críticos inline + animações customizadas -->
+    <style>
+        /* Animação fade-in-up via IntersectionObserver */
+        .card {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .card.revelada {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stagger delay via JS — reservado para data-delay */
+        .card.revelada[data-delay="0"]  { transition-delay: 0ms; }
+        .card.revelada[data-delay="1"]  { transition-delay: 80ms; }
+        .card.revelada[data-delay="2"]  { transition-delay: 160ms; }
+        .card.revelada[data-delay="3"]  { transition-delay: 240ms; }
+        .card.revelada[data-delay="4"]  { transition-delay: 320ms; }
+
+        /* Toast de feedback */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #ff6b35;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            z-index: 100;
+            white-space: nowrap;
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.35);
+        }
+        .toast.visivel {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Suavização de scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Foco visível para acessibilidade */
+        *:focus-visible {
+            outline: 2px solid #ff6b35;
+            outline-offset: 3px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body class="bg-fundo text-white font-sans antialiased min-h-screen flex flex-col items-center">
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+
+    <!-- Container Principal -->
+    <main class="w-full max-w-[420px] px-5 pt-12 pb-6 mx-auto" role="main" aria-label="Links de Ana Beatriz">
+
+        <!-- Avatar -->
+        <img
+            src="https://i.pravatar.cc/200"
+            alt="Foto de perfil de Ana Beatriz • Consultora Digital"
+            class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-destaque object-cover shadow-lg shadow-destaque/20"
+            loading="lazy"
+            width="96"
+            height="96"
+            decoding="async"
+            aria-hidden="false"
+        >
+
+        <!-- Nome -->
+        <h1 class="text-2xl font-bold text-center text-white tracking-tight">
+            Ana Beatriz • Consultora Digital
+        </h1>
+
+        <!-- Biografia / Headline -->
+        <p class="text-sm text-center text-texto-secundario mt-1.5 leading-relaxed max-w-[320px] mx-auto">
+            Estratégias para criar conteúdo que converte no Instagram
+        </p>
+
+        <!-- Lista de Links (Cards Empilhados) -->
+        <nav class="mt-8 space-y-3.5" aria-label="Links de serviços e conteúdos">
+
+            <!-- Card 1: Consultoria -->
+            <a
+                href="#"
+                class="card flex items-center gap-4 bg-cartoes p-4 rounded-xl border border-white/10 hover:bg-cartoes/80 hover:scale-[1.02] transition-transform duration-200 cursor-pointer no-underline text-white group"
+                data-delay="0"
+                aria-label="Consultoria 1:1 — Sessão personalizada para seu negócio"
+                rel="noopener"
+            >
+                <span class="flex-shrink-0 w-11 h-11 rounded-full bg-destaque/15 flex items-center justify-center text-destaque text-lg group-hover:bg-destaque/25 transition-colors duration-200" aria-hidden="true">
+                    <i class="fa-solid fa-headset"></i>
+                </span>
+                <div class="flex flex-col min-w-0">
+                    <span class="font-semibold text-[15px] leading-tight truncate">Consultoria 1:1</span>
+                    <span class="text-xs text-texto-secundario leading-tight mt-0.5 truncate">Sessão personalizada para seu negócio</span>
+                </div>
+                <span class="ml-auto flex-shrink-0 text-texto-secundario/40 group-hover:text-destaque transition-colors duration-200" aria-hidden="true">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </span>
+            </a>
+
+            <!-- Card 2: Ebook -->
+            <a
+                href="#"
+                class="card flex items-center gap-4 bg-cartoes p-4 rounded-xl border border-white/10 hover:bg-cartoes/80 hover:scale-[1.02] transition-transform duration-200 cursor-pointer no-underline text-white group"
+                data-delay="1"
+                aria-label="Ebook Gratuito — Guia prático de marketing digital"
+                rel="noopener"
+            >
+                <span class="flex-shrink-0 w-11 h-11 rounded-full bg-destaque/15 flex items-center justify-center text-destaque text-lg group-hover:bg-destaque/25 transition-colors duration-200" aria-hidden="true">
+                    <i class="fa-solid fa-book"></i>
+                </span>
+                <div class="flex flex-col min-w-0">
+                    <span class="font-semibold text-[15px] leading-tight truncate">Ebook Gratuito</span>
+                    <span class="text-xs text-texto-secundario leading-tight mt-0.5 truncate">Guia prático de marketing digital</span>
+                </div>
+                <span class="ml-auto flex-shrink-0 text-texto-secundario/40 group-hover:text-destaque transition-colors duration-200" aria-hidden="true">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </span>
+            </a>
+
+            <!-- Card 3: Curso Online -->
+            <a
+                href="#"
+                class="card flex items-center gap-4 bg-cartoes p-4 rounded-xl border border-white/10 hover:bg-cartoes/80 hover:scale-[1.02] transition-transform duration-200 cursor-pointer no-underline text-white group"
+                data-delay="2"
+                aria-label="Curso Online — Do zero ao conteúdo estratégico"
+                rel="noopener"
+            >
+                <span class="flex-shrink-0 w-11 h-11 rounded-full bg-destaque/15 flex items-center justify-center text-destaque text-lg group-hover:bg-destaque/25 transition-colors duration-200" aria-hidden="true">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </span>
+                <div class="flex flex-col min-w-0">
+                    <span class="font-semibold text-[15px] leading-tight truncate">Curso Online</span>
+                    <span class="text-xs text-texto-secundario leading-tight mt-0.5 truncate">Do zero ao conteúdo estratégico</span>
+                </div>
+                <span class="ml-auto flex-shrink-0 text-texto-secundario/40 group-hover:text-destaque transition-colors duration-200" aria-hidden="true">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </span>
+            </a>
+
+            <!-- Card 4: Portfólio -->
+            <a
+                href="#"
+                class="card flex items-center gap-4 bg-cartoes p-4 rounded-xl border border-white/10 hover:bg-cartoes/80 hover:scale-[1.02] transition-transform duration-200 cursor-pointer no-underline text-white group"
+                data-delay="3"
+                aria-label="Portfólio — Cases e resultados reais"
+                rel="noopener"
+            >
+                <span class="flex-shrink-0 w-11 h-11 rounded-full bg-destaque/15 flex items-center justify-center text-destaque text-lg group-hover:bg-destaque/25 transition-colors duration-200" aria-hidden="true">
+                    <i class="fa-solid fa-briefcase"></i>
+                </span>
+                <div class="flex flex-col min-w-0">
+                    <span class="font-semibold text-[15px] leading-tight truncate">Portfólio</span>
+                    <span class="text-xs text-texto-secundario leading-tight mt-0.5 truncate">Cases e resultados reais</span>
+                </div>
+                <span class="ml-auto flex-shrink-0 text-texto-secundario/40 group-hover:text-destaque transition-colors duration-200" aria-hidden="true">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </span>
+            </a>
+
+        </nav>
+
+        <!-- Rodapé -->
+        <footer class="text-xs text-center text-texto-secundario mt-10 pb-4">
+            <p>&copy; 2024 Ana Beatriz • Consultora Digital</p>
+        </footer>
+
+    </main>
+
+    <!-- Botão Compartilhar (Fixo, canto inferior direito) -->
+    <button
+        id="btn-compartilhar"
+        class="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-destaque text-white flex items-center justify-center shadow-lg shadow-destaque/30 hover:bg-hover-destaque hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer border-0"
+        aria-label="Compartilhar link da página"
+        title="Compartilhar"
+    >
+        <i class="fa-solid fa-share-nodes text-lg" aria-hidden="true"></i>
+    </button>
+
+    <!-- Toast de feedback -->
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
+        <i class="fa-solid fa-check mr-2" aria-hidden="true"></i>Link copiado!
+    </div>
+
+    <!-- Scripts inline (defer via posicionamento ao final do body) -->
+    <script>
+        (function () {
+            'use strict';
+
+            // ── IntersectionObserver: animação fade-in-up ──
+            const cards = document.querySelectorAll('.card');
+
+            if ('IntersectionObserver' in window && cards.length > 0) {
+                const observerOptions = {
+                    root: null,
+                    rootMargin: '0px 0px -30px 0px',
+                    threshold: 0.1,
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('revelada');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, observerOptions);
+
+                cards.forEach((card) => observer.observe(card));
+            } else {
+                // Fallback: revelar tudo imediatamente se IntersectionObserver não for suportado
+                cards.forEach((card) => card.classList.add('revelada'));
+            }
+
+            // ── Botão Compartilhar: Web Share API + fallback clipboard ──
+            const btnCompartilhar = document.getElementById('btn-compartilhar');
+            const toast = document.getElementById('toast');
+            let toastTimer = null;
+
+            function mostrarToast(mensagem) {
+                // Atualiza texto se necessário
+                const icon = toast.querySelector('i');
+                if (icon) icon.className = 'fa-solid fa-check mr-2';
+                toast.childNodes.forEach((node) => {
+                    if (node.nodeType === 3) node.textContent = '';
+                });
+                const textNode = document.createTextNode(mensagem);
+                // Limpa children mantendo só o ícone
+                while (toast.children.length > 1) toast.removeChild(toast.lastChild);
+                toast.appendChild(textNode);
+
+                toast.classList.add('visivel');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('visivel');
+                }, 2200);
+            }
+
+            btnCompartilhar.addEventListener('click', async () => {
+                const pageUrl = window.location.href;
+                const pageTitle = document.title;
+
+                // Tenta Web Share API (mobile/desktop moderno)
+                if (navigator.share && navigator.canShare) {
+                    try {
+                        await navigator.share({
+                            title: pageTitle,
+                            url: pageUrl,
+                        });
+                        // Compartilhado com sucesso — sem toast necessário
+                        return;
+                    } catch (err) {
+                        // Usuário cancelou ou API falhou — tenta clipboard
+                        if (err.name === 'AbortError') return;
+                    }
+                }
+
+                // Fallback: copiar para clipboard
+                try {
+                    await navigator.clipboard.writeText(pageUrl);
+                    mostrarToast('Link copiado!');
+                } catch (clipErr) {
+                    // Fallback legacy para navegadores antigos
+                    const textarea = document.createElement('textarea');
+                    textarea.value = pageUrl;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    textarea.style.pointerEvents = 'none';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        mostrarToast('Link copiado!');
+                    } catch (execErr) {
+                        mostrarToast('Erro ao copiar link');
+                    }
+                    document.body.removeChild(textarea);
+                }
+            });
+
+            // ── Navegação por teclado: trata Enter/Space nos cards ──
+            document.querySelectorAll('a.card').forEach((link) => {
+                link.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        // Comportamento padrão do Enter em links já funciona;
+                        // para Space, prevenimos scroll e disparamos clique
+                        if (e.key === ' ') {
+                            e.preventDefault();
+                            link.click();
+                        }
+                    }
+                });
+            });
+
+            // ── Smooth scroll para links âncora internos (se houver) ──
+            document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+                anchor.addEventListener('click', function (e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return; // placeholder links
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+        })();
+    </script>
+
+</body>
+</html>
