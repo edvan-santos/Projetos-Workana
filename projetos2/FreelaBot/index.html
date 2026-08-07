@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FreelaBot - Seu radar pessoal de oportunidades freelance no Telegram. Receba primeiro os projetos que realmente interessam para você.">
+  <meta name="keywords" content="freelance, telegram, bot, oportunidades, projetos, radar, freelancer">
+  <meta property="og:title" content="FreelaBot - Radar de Oportunidades Freelance">
+  <meta property="og:description" content="Receba primeiro os projetos que realmente interessam para você. Seu radar pessoal de oportunidades no Telegram.">
+  <meta property="og:type" content="website">
+  <title>FreelaBot — Radar de Oportunidades Freelance no Telegram</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            secondary: '#0F172A',
+            accent: '#10B981',
+            bglight: '#F8FAFC',
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; }
+    .font-inter { font-family: 'Inter', system-ui, sans-serif; }
+    /* Toast animation */
+    @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .toast-enter { animation: slideDown 0.3s ease-out; }
+    /* Pulse for stats */
+    @keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .count-animate { animation: countUp 0.6s ease-out forwards; }
+    /* Accordion */
+    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .accordion-content.open { max-height: 500px; }
+    /* Sidebar transition */
+    @media (max-width: 767px) {
+      .sidebar-desktop { display: none; }
+      .bottom-nav { display: flex; }
+    }
+    @media (min-width: 768px) {
+      .sidebar-desktop { display: flex; }
+      .bottom-nav { display: none; }
+    }
+  </style>
+</head>
+<body class="font-inter bg-bglight text-secondary antialiased">
+
+  <!-- ==================== TOAST CONTAINER ==================== -->
+  <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2"></div>
+
+  <!-- ==================== MODAL CONTAINER ==================== -->
+  <div id="modal-overlay" class="fixed inset-0 bg-black/50 z-[9998] hidden items-center justify-center" onclick="closeModal(event)">
+    <div id="modal-content" class="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all" onclick="event.stopPropagation()"></div>
+  </div>
+
+  <!-- ==================== HEADER / NAVBAR ==================== -->
+  <header id="main-header" class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="#home" class="flex items-center gap-2" onclick="navigateTo('#home')">
+          <!-- Radar SVG Logo -->
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="20" stroke="#2563EB" stroke-width="2.5" fill="none"/>
+            <circle cx="24" cy="24" r="14" stroke="#2563EB" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/>
+            <circle cx="24" cy="24" r="8" stroke="#2563EB" stroke-width="1" fill="none" stroke-dasharray="2 2"/>
+            <circle cx="24" cy="24" r="3" fill="#10B981"/>
+            <!-- Raio -->
+            <polygon points="24,6 20,22 26,22 22,40 30,20 23,20 27,7" fill="#10B981"/>
+          </svg>
+          <span class="text-xl font-bold text-secondary">Freela<span class="text-primary">Bot</span></span>
+        </a>
+        <!-- Desktop Nav -->
+        <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+          <a href="#home" onclick="navigateTo('#home')" class="text-secondary/70 hover:text-primary transition nav-link">Como funciona</a>
+          <a href="#plans" onclick="scrollToSection('plans')" class="text-secondary/70 hover:text-primary transition">Planos</a>
+          <a href="#faq-section" onclick="scrollToSection('faq-section')" class="text-secondary/70 hover:text-primary transition">FAQ</a>
+          <a href="#login" onclick="navigateTo('#login')" class="text-primary font-semibold">Entrar</a>
+          <a href="#cadastro" onclick="navigateTo('#cadastro')" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-semibold">Criar conta</a>
+        </nav>
+        <!-- Mobile Hamburger -->
+        <button id="hamburger-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100" onclick="toggleMobileMenu()">
+          <svg id="hamburger-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          <svg id="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <!-- Mobile Dropdown -->
+      <div id="mobile-menu" class="md:hidden hidden pb-4 space-y-2">
+        <a href="#home" onclick="navigateTo('#home');toggleMobileMenu()" class="block py-2 text-secondary/70 hover:text-primary">Como funciona</a>
+        <a href="#plans" onclick="scrollToSection('plans');toggleMobileMenu()" class="block py-2 text-secondary/70 hover:text-primary">Planos</a>
+        <a href="#faq-section" onclick="scrollToSection('faq-section');toggleMobileMenu()" class="block py-2 text-secondary/70 hover:text-primary">FAQ</a>
+        <a href="#login" onclick="navigateTo('#login');toggleMobileMenu()" class="block py-2 text-primary font-semibold">Entrar</a>
+        <a href="#cadastro" onclick="navigateTo('#cadastro');toggleMobileMenu()" class="block py-2 bg-primary text-white text-center rounded-lg font-semibold">Criar conta</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT AREA ==================== -->
+  <main id="main-content" class="mt-16">
+
+    <!-- ========== LANDING CONTAINER ========== -->
+    <div id="landing-container">
+
+      <!-- HERO SECTION -->
+      <section class="bg-gradient-to-br from-primary to-secondary text-white py-16 md:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight mb-4">
+                Receba primeiro os projetos que realmente <span class="text-accent">interessam</span> para você.
+              </h1>
+              <p class="text-lg sm:text-xl text-blue-100 mb-8">
+                Seu radar pessoal de oportunidades freelance no Telegram.
+              </p>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <a href="#cadastro" onclick="navigateTo('#cadastro')" class="bg-accent hover:bg-emerald-600 text-white font-bold px-8 py-3.5 rounded-xl text-center transition shadow-lg shadow-emerald-500/30">
+                  🚀 Começar gratuitamente
+                </a>
+                <a href="#how-it-works" onclick="scrollToSection('how-it-works')" class="border-2 border-white/40 hover:border-white text-white font-semibold px-8 py-3.5 rounded-xl text-center transition">
+                  Ver como funciona
+                </a>
+              </div>
+            </div>
+            <!-- Mockup Telegram Card -->
+            <div class="flex justify-center md:justify-end">
+              <div class="bg-white text-secondary rounded-2xl shadow-2xl p-5 w-full max-w-sm border border-gray-200">
+                <div class="flex items-center gap-2 mb-3 pb-3 border-b border-gray-100">
+                  <div class="w-9 h-9 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">FB</div>
+                  <div>
+                    <div class="font-semibold text-sm">FreelaBot</div>
+                    <div class="text-xs text-gray-400">agora mesmo</div>
+                  </div>
+                </div>
+                <div class="text-sm space-y-1">
+                  <div class="flex items-center gap-2"><span>🚀</span><span class="font-bold">Nova oportunidade!</span></div>
+                  <p class="font-semibold">Desenvolvedor React Sênior</p>
+                  <p class="text-xs text-gray-500">💼 TI e Programação</p>
+                  <p class="text-xs text-gray-500">💰 R$ 8.000 - 12.000</p>
+                  <p class="text-xs text-gray-400">🕐 Publicado há 12 min</p>
+                  <span class="inline-block bg-accent/10 text-accent text-xs px-2 py-0.5 rounded-full mt-1">🔑 react, typescript, next.js</span>
+                </div>
+                <button class="mt-3 w-full bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Ver projeto →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BENEFITS SECTION -->
+      <section class="py-16 md:py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl sm:text-4xl font-bold text-secondary mb-3">Por que usar o FreelaBot?</h2>
+            <p class="text-gray-500 max-w-2xl mx-auto">Encontre as melhores oportunidades antes da concorrência, direto no seu Telegram.</p>
+          </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Card 1 -->
+            <div class="bg-bglight rounded-2xl p-6 hover:shadow-lg transition border border-gray-100">
+              <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <h3 class="font-bold text-lg mb-2">Velocidade</h3>
+              <p class="text-gray-500 text-sm">Receba alertas em tempo real assim que uma nova oportunidade surgir. Seja o primeiro a se candidatar.</p>
+            </div>
+            <!-- Card 2 -->
+            <div class="bg-bglight rounded-2xl p-6 hover:shadow-lg transition border border-gray-100">
+              <div class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              </div>
+              <h3 class="font-bold text-lg mb-2">Filtro Inteligente</h3>
+              <p class="text-gray-500 text-sm">Configure categorias, orçamento mínimo e palavras-chave. Só receba o que realmente importa.</p>
+            </div>
+            <!-- Card 3 -->
+            <div class="bg-bglight rounded-2xl p-6 hover:shadow-lg transition border border-gray-100">
+              <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              </div>
+              <h3 class="font-bold text-lg mb-2">Integração Telegram</h3>
+              <p class="text-gray-500 text-sm">Notificações direto no Telegram. Nada de e-mails perdidos ou plataformas complicadas.</p>
+            </div>
+            <!-- Card 4 -->
+            <div class="bg-bglight rounded-2xl p-6 hover:shadow-lg transition border border-gray-100">
+              <div class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="4"/><line x1="16" y1="2" x2="16" y2="4"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              </div>
+              <h3 class="font-bold text-lg mb-2">Orçamento Mínimo</h3>
+              <p class="text-gray-500 text-sm">Defina um valor mínimo e foque apenas em projetos que valem o seu tempo e expertise.</p>
+            </div>
+            <!-- Card 5 -->
+            <div class="bg-bglight rounded-2xl p-6 hover:shadow-lg transition border border-gray-100">
+              <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <h3 class="font-bold text-lg mb-2">Palavras-chave</h3>
+              <p class="text-gray-500 text-sm">Cadastre termos específicos da sua stack e receba apenas projetos alinhados com seu perfil.</p>
+            </div>
+            <!-- Card 6 -->
+            <div class="bg-bglight rounded-2xl p-6 hover:shadow-lg transition border border-gray-100">
+              <div class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <h3 class="font-bold text-lg mb-2">Privacidade</h3>
+              <p class="text-gray-500 text-sm">Seus dados e preferências são privados. Ninguém além de você sabe o que está monitorando.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS SECTION -->
+      <section id="how-it-works" class="py-16 md:py-20 bg-bglight">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl sm:text-4xl font-bold text-secondary mb-3">Como funciona</h2>
+            <p class="text-gray-500 max-w-2xl mx-auto">Em apenas 4 passos, seu radar estará ativo e caçando oportunidades.</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Step 1 -->
+            <div class="relative text-center">
+              <div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">1</div>
+              <h4 class="font-bold mb-2">Crie sua conta</h4>
+              <p class="text-sm text-gray-500">Cadastro rápido e gratuito. Sem cartão de crédito.</p>
+              <div class="hidden md:block absolute top-8 -right-4 text-primary text-2xl">→</div>
+            </div>
+            <!-- Step 2 -->
+            <div class="relative text-center">
+              <div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">2</div>
+              <h4 class="font-bold mb-2">Configure seu radar</h4>
+              <p class="text-sm text-gray-500">Escolha categorias, orçamento e palavras-chave.</p>
+              <div class="hidden md:block absolute top-8 -right-4 text-primary text-2xl">→</div>
+            </div>
+            <!-- Step 3 -->
+            <div class="relative text-center">
+              <div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">3</div>
+              <h4 class="font-bold mb-2">Conecte o Telegram</h4>
+              <p class="text-sm text-gray-500">Vincule seu Telegram para receber alertas instantâneos.</p>
+              <div class="hidden md:block absolute top-8 -right-4 text-primary text-2xl">→</div>
+            </div>
+            <!-- Step 4 -->
+            <div class="text-center">
+              <div class="w-16 h-16 bg-accent text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">4</div>
+              <h4 class="font-bold mb-2">Receba e conquiste</h4>
+              <p class="text-sm text-gray-500">Receba alertas e seja o primeiro a se candidatar!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FILTERS EXPLANATION SECTION -->
+      <section class="py-16 md:py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <h2 class="text-3xl sm:text-4xl font-bold text-secondary mb-4">Filtros poderosos para você nunca mais perder tempo</h2>
+              <p class="text-gray-500 mb-6">Configure exatamente o que você quer — e o que não quer — receber. Seu radar, suas regras.</p>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3 bg-bglight p-3 rounded-xl">
+                  <span class="text-xl">📂</span><span class="font-medium">Categorias: TI, Design, Marketing, etc.</span>
+                </div>
+                <div class="flex items-center gap-3 bg-bglight p-3 rounded-xl">
+                  <span class="text-xl">💰</span><span class="font-medium">Orçamento mínimo: a partir de R$ 500</span>
+                </div>
+                <div class="flex items-center gap-3 bg-bglight p-3 rounded-xl">
+                  <span class="text-xl">🔑</span><span class="font-medium">Palavras-chave: react, node, figma</span>
+                </div>
+                <div class="flex items-center gap-3 bg-bglight p-3 rounded-xl">
+                  <span class="text-xl">🚫</span><span class="font-medium">Palavras excluídas: wordpress, elementor</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-center">
+              <div class="bg-secondary text-white rounded-2xl p-6 w-full max-w-xs shadow-xl">
+                <div class="text-center mb-4">
+                  <div class="text-4xl mb-2">📡</div>
+                  <h4 class="font-bold">Seu Radar Ativo</h4>
+                  <p class="text-xs text-gray-300">Monitorando 24/7</p>
+                </div>
+                <div class="space-y-2 text-sm">
+                  <div class="flex justify-between"><span>📂 Categorias:</span><span class="text-accent">2 ativas</span></div>
+                  <div class="flex justify-between"><span>💰 Mínimo:</span><span class="text-accent">R$ 200</span></div>
+                  <div class="flex justify-between"><span>🔑 Keywords:</span><span class="text-accent">3 configuradas</span></div>
+                  <div class="flex justify-between"><span>🚫 Excluídas:</span><span class="text-red-400">1 termo</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATS SECTION -->
+      <section class="py-16 md:py-20 bg-gradient-to-br from-secondary to-primary text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-10">
+            <h2 class="text-3xl sm:text-4xl font-bold mb-2">Radar em números</h2>
+            <p class="text-blue-200 text-sm flex items-center justify-center gap-1">
+              <span>📊</span> Dados demonstrativos de uso da plataforma
+            </p>
+          </div>
+          <div class="grid sm:grid-cols-3 gap-6">
+            <div class="text-center p-6 bg-white/10 rounded-2xl backdrop-blur">
+              <div class="text-4xl font-extrabold text-accent count-animate" id="stat-projetos">0</div>
+              <div class="text-blue-100 mt-2">Projetos monitorados</div>
+            </div>
+            <div class="text-center p-6 bg-white/10 rounded-2xl backdrop-blur">
+              <div class="text-4xl font-extrabold text-accent count-animate" id="stat-oportunidades">0</div>
+              <div class="text-blue-100 mt-2">Oportunidades encontradas</div>
+            </div>
+            <div class="text-center p-6 bg-white/10 rounded-2xl backdrop-blur">
+              <div class="text-4xl font-extrabold text-accent count-animate" id="stat-freelancers">0</div>
+              <div class="text-blue-100 mt-2">Freelancers cadastrados</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PLANS SECTION -->
+      <section id="plans" class="py-16 md:py-20 bg-bglight">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl sm:text-4xl font-bold text-secondary mb-3">Planos para todo freelancer</h2>
+            <p class="text-gray-500 max-w-2xl mx-auto">Comece gratuitamente e evolua conforme sua necessidade.</p>
+          </div>
+          <!-- Mobile: cards stacked / Desktop: table -->
+          <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <!-- Gratuito -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-gray-200 flex flex-col">
+              <h3 class="text-xl font-bold mb-1">Gratuito</h3>
+              <p class="text-gray-400 text-sm mb-4">Para começar</p>
+              <div class="text-4xl font-extrabold mb-4">R$ 0<span class="text-lg text-gray-400 font-normal">/mês</span></div>
+              <ul class="space-y-2 text-sm flex-1 mb-6">
+                <li class="flex items-center gap-2">✅ 2 oportunidades/dia</li>
+                <li class="flex items-center gap-2">✅ 3 categorias</li>
+                <li class="flex items-center gap-2">✅ 3 palavras-chave</li>
+                <li class="flex items-center gap-2">✅ Alertas no Telegram</li>
+                <li class="flex items-center gap-2 text-gray-300">— Filtro de orçamento</li>
+                <li class="flex items-center gap-2 text-gray-300">— Palavras excluídas</li>
+              </ul>
+              <a href="#cadastro" onclick="navigateTo('#cadastro')" class="block text-center border-2 border-primary text-primary font-bold py-3 rounded-xl hover:bg-primary hover:text-white transition">Começar</a>
+            </div>
+            <!-- Premium Mensal (Destaque) -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-accent relative flex flex-col shadow-xl shadow-accent/10 scale-105">
+              <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-4 py-1 rounded-full">MAIS POPULAR</span>
+              <h3 class="text-xl font-bold mb-1 mt-2">Premium Mensal</h3>
+              <p class="text-gray-400 text-sm mb-4">Para profissionais</p>
+              <div class="text-4xl font-extrabold mb-4">R$ 29<span class="text-lg text-gray-400 font-normal">/mês</span></div>
+              <ul class="space-y-2 text-sm flex-1 mb-6">
+                <li class="flex items-center gap-2">✅ Oportunidades ilimitadas</li>
+                <li class="flex items-center gap-2">✅ Categorias ilimitadas</li>
+                <li class="flex items-center gap-2">✅ Palavras-chave ilimitadas</li>
+                <li class="flex items-center gap-2">✅ Filtro de orçamento</li>
+                <li class="flex items-center gap-2">✅ Palavras excluídas</li>
+                <li class="flex items-center gap-2">✅ Histórico completo</li>
+              </ul>
+              <a href="#cadastro" onclick="navigateTo('#cadastro')" class="block text-center bg-accent hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition shadow-md">Assinar Premium</a>
+            </div>
+            <!-- Premium Anual -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-gray-200 flex flex-col">
+              <h3 class="text-xl font-bold mb-1">Premium Anual</h3>
+              <p class="text-gray-400 text-sm mb-4">Melhor custo-benefício</p>
+              <div class="text-4xl font-extrabold mb-4">R$ 19<span class="text-lg text-gray-400 font-normal">/mês</span></div>
+              <p class="text-xs text-accent font-semibold -mt-3 mb-4">Economize 34% — R$ 228/ano</p>
+              <ul class="space-y-2 text-sm flex-1 mb-6">
+                <li class="flex items-center gap-2">✅ Tudo do Premium Mensal</li>
+                <li class="flex items-center gap-2">✅ Suporte prioritário</li>
+                <li class="flex items-center gap-2">✅ Acesso antecipado a novidades</li>
+                <li class="flex items-center gap-2">✅ 7 dias grátis</li>
+              </ul>
+              <a href="#cadastro" onclick="navigateTo('#cadastro')" class="block text-center border-2 border-primary text-primary font-bold py-3 rounded-xl hover:bg-primary hover:text-white transition">Assinar Anual</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ SECTION -->
+      <section id="faq-section" class="py-16 md:py-20 bg-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-10">
+            <h2 class="text-3xl sm:text-4xl font-bold text-secondary mb-3">Perguntas Frequentes</h2>
+            <p class="text-gray-500">Tire suas dúvidas sobre o FreelaBot.</p>
+          </div>
+          <div class="space-y-3">
+            <!-- FAQ 1 -->
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <button class="w-full flex items-center justify-between p-4 font-semibold text-left hover:bg-gray-50 transition" onclick="toggleAccordion(this)">
+                <span>Como o FreelaBot encontra oportunidades?</span>
+                <svg class="w-5 h-5 transition-transform duration-300 accordion-arrow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="accordion-content px-4">
+                <p class="pb-4 text-gray-500 text-sm">O FreelaBot monitora constantemente as principais plataformas de freelance do mercado. Assim que uma nova oportunidade é publicada, nosso sistema verifica se ela atende aos filtros do seu radar e envia uma notificação instantânea via Telegram.</p>
+              </div>
+            </div>
+            <!-- FAQ 2 -->
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <button class="w-full flex items-center justify-between p-4 font-semibold text-left hover:bg-gray-50 transition" onclick="toggleAccordion(this)">
+                <span>Preciso deixar o Telegram aberto o tempo todo?</span>
+                <svg class="w-5 h-5 transition-transform duration-300 accordion-arrow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="accordion-content px-4">
+                <p class="pb-4 text-gray-500 text-sm">Não! As notificações chegam como mensagens normais no Telegram. Você as receberá mesmo com o app em segundo plano, graças ao sistema de notificações push do Telegram.</p>
+              </div>
+            </div>
+            <!-- FAQ 3 -->
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <button class="w-full flex items-center justify-between p-4 font-semibold text-left hover:bg-gray-50 transition" onclick="toggleAccordion(this)">
+                <span>Posso mudar de plano depois?</span>
+                <svg class="w-5 h-5 transition-transform duration-300 accordion-arrow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="accordion-content px-4">
+                <p class="pb-4 text-gray-500 text-sm">Sim! Você pode fazer upgrade a qualquer momento. No plano mensal, a cobrança é renovada a cada 30 dias. No anual, você tem 7 dias de garantia para cancelar sem custos.</p>
+              </div>
+            </div>
+            <!-- FAQ 4 -->
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <button class="w-full flex items-center justify-between p-4 font-semibold text-left hover:bg-gray-50 transition" onclick="toggleAccordion(this)">
+                <span>Onde as oportunidades são capturadas?</span>
+                <svg class="w-5 h-5 transition-transform duration-300 accordion-arrow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="accordion-content px-4">
+                <p class="pb-4 text-gray-500 text-sm">Monitoramos diversas plataformas como Workana, 99Freelas, Freelancer.com, GetNinjas e grupos de Telegram/WhatsApp. Nossa base é constantemente atualizada com novas fontes.</p>
+              </div>
+            </div>
+            <!-- FAQ 5 -->
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <button class="w-full flex items-center justify-between p-4 font-semibold text-left hover:bg-gray-50 transition" onclick="toggleAccordion(this)">
+                <span>Meus dados estão seguros?</span>
+                <svg class="w-5 h-5 transition-transform duration-300 accordion-arrow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="accordion-content px-4">
+                <p class="pb-4 text-gray-500 text-sm">Totalmente. Utilizamos criptografia de ponta a ponta para proteger suas informações. Seus dados de preferências e monitoramento são privados — ninguém além de você tem acesso ao que está configurado no seu radar.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA FINAL SECTION -->
+      <section class="py-16 md:py-20 bg-gradient-to-br from-secondary to-primary text-white text-center">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 class="text-3xl sm:text-4xl font-bold mb-4">Pare de procurar projetos.<br>Deixe o FreelaBot encontrar oportunidades para você.</h2>
+          <p class="text-blue-200 mb-8">Ative seu radar agora e receba alertas em tempo real.</p>
+          <a href="#cadastro" onclick="navigateTo('#cadastro')" class="inline-block bg-accent hover:bg-emerald-600 text-white font-bold px-10 py-4 rounded-xl text-lg transition shadow-xl shadow-emerald-500/30">
+            🚀 Começar gratuitamente
+          </a>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="bg-secondary text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Col 1 -->
+            <div>
+              <div class="flex items-center gap-2 mb-3">
+                <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="24" cy="24" r="20" stroke="#2563EB" stroke-width="2.5" fill="none"/>
+                  <circle cx="24" cy="24" r="8" stroke="#2563EB" stroke-width="1" fill="none" stroke-dasharray="2 2"/>
+                  <circle cx="24" cy="24" r="3" fill="#10B981"/>
+                  <polygon points="24,6 20,22 26,22 22,40 30,20 23,20 27,7" fill="#10B981"/>
+                </svg>
+                <span class="text-lg font-bold">Freela<span class="text-primary">Bot</span></span>
+              </div>
+              <p class="text-gray-400 text-sm">Seu radar pessoal de oportunidades freelance no Telegram.</p>
+            </div>
+            <!-- Col 2 -->
+            <div>
+              <h4 class="font-semibold mb-3">Navegação</h4>
+              <ul class="space-y-2 text-sm text-gray-400">
+                <li><a href="#home" onclick="navigateTo('#home')" class="hover:text-white transition">Início</a></li>
+                <li><a href="#plans" onclick="scrollToSection('plans')" class="hover:text-white transition">Planos</a></li>
+                <li><a href="#faq-section" onclick="scrollToSection('faq-section')" class="hover:text-white transition">FAQ</a></li>
+                <li><a href="#login" onclick="navigateTo('#login')" class="hover:text-white transition">Login</a></li>
+                <li><a href="#cadastro" onclick="navigateTo('#cadastro')" class="hover:text-white transition">Cadastro</a></li>
+              </ul>
+            </div>
+            <!-- Col 3 -->
+            <div>
+              <h4 class="font-semibold mb-3">Legal</h4>
+              <ul class="space-y-2 text-sm text-gray-400">
+                <li><a href="#termos" onclick="navigateTo('#termos')" class="hover:text-white transition">Termos de Uso</a></li>
+                <li><a href="#privacidade" onclick="navigateTo('#privacidade')" class="hover:text-white transition">Privacidade</a></li>
+              </ul>
+            </div>
+            <!-- Col 4 -->
+            <div>
+              <h4 class="font-semibold mb-3">Contato</h4>
+              <ul class="space-y-2 text-sm text-gray-400">
+                <li>📧 contato@freelabot.com.br</li>
+                <li>💬 Telegram: @FreelaBot</li>
+              </ul>
+            </div>
+          </div>
+          <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-500">
+            © 2025 FreelaBot. Todos os direitos reservados. Dados demonstrativos.
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ========== AUTHENTICATED APP CONTAINER ========== -->
+    <div id="app-container" class="hidden">
+      <div class="flex min-h-screen">
+        <!-- SIDEBAR DESKTOP -->
+        <aside class="sidebar-desktop w-[260px] bg-white border-r border-gray-200 flex-col fixed top-16 bottom-0 left-0 z-40 overflow-y-auto hidden md:flex">
+          <nav class="p-4 space-y-1 flex-1">
+            <a href="#dashboard" onclick="navigateTo('#dashboard')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-bglight transition sidebar-link">📊 Dashboard</a>
+            <a href="#radar" onclick="navigateTo('#radar')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-bglight transition sidebar-link">📡 Meu Radar</a>
+            <a href="#oportunidades" onclick="navigateTo('#oportunidades')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-bglight transition sidebar-link">💼 Oportunidades</a>
+            <a href="#telegram" onclick="navigateTo('#telegram')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-bglight transition sidebar-link">💬 Telegram</a>
+            <a href="#plano" onclick="navigateTo('#plano')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-bglight transition sidebar-link">⭐ Meu Plano</a>
+            <a href="#perfil" onclick="navigateTo('#perfil')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-bglight transition sidebar-link">👤 Perfil</a>
+            <a href="#configuracoes" onclick="navigateTo('#configuracoes')" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-bglight transition sidebar-link">⚙️ Configurações</a>
+          </nav>
+          <div class="p-4 border-t border-gray-200">
+            <button onclick="logout()" class="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition">🚪 Sair</button>
+          </div>
+        </aside>
+        <!-- MAIN CONTENT AREA (App) -->
+        <div class="flex-1 md:ml-[260px] pb-20 md:pb-0" id="app-main-content">
+          <!-- Conteúdo dinâmico renderizado via JS -->
+        </div>
+        <!-- BOTTOM NAV (Mobile) -->
+        <nav class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 hidden md:hidden">
+          <div class="flex justify-around py-2">
+            <a href="#dashboard" onclick="navigateTo('#dashboard')" class="flex flex-col items-center text-xs gap-1 p-1 sidebar-link-mobile text-gray-400"><span class="text-lg">📊</span>Dashboard</a>
+            <a href="#radar" onclick="navigateTo('#radar')" class="flex flex-col items-center text-xs gap-1 p-1 sidebar-link-mobile text-gray-400"><span class="text-lg">📡</span>Radar</a>
+            <a href="#oportunidades" onclick="navigateTo('#oportunidades')" class="flex flex-col items-center text-xs gap-1 p-1 sidebar-link-mobile text-gray-400"><span class="text-lg">💼</span>Ops</a>
+            <a href="#telegram" onclick="navigateTo('#telegram')" class="flex flex-col items-center text-xs gap-1 p-1 sidebar-link-mobile text-gray-400"><span class="text-lg">💬</span>Telegram</a>
+            <a href="#perfil" onclick="navigateTo('#perfil')" class="flex flex-col items-center text-xs gap-1 p-1 sidebar-link-mobile text-gray-400"><span class="text-lg">👤</span>Perfil</a>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- ========== LEGAL PAGES (Landing style) ========== -->
+    <div id="legal-container" class="hidden max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16"></div>
+
+  </main>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    // ==================== STORE (localStorage) ====================
+    const STORE_KEY = 'freelabot_data';
+
+    function getStore() {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) return JSON.parse(raw);
+      return getDefaultStore();
+    }
+
+    function getDefaultStore() {
+      return {
+        user: null,
+        oportunidades: generateMockOportunidades(),
+        dailyCount: { count: 0, date: new Date().toDateString() }
+      };
+    }
+
+    function saveStore(store) {
+      localStorage.setItem(STORE_KEY, JSON.stringify(store));
+    }
+
+    function getCurrentUser() {
+      const store = getStore();
+      return store.user;
+    }
+
+    function setCurrentUser(user) {
+      const store = getStore();
+      store.user = user;
+      saveStore(store);
+    }
+
+    function updateUserPreferences(prefs) {
+      const store = getStore();
+      if (store.user) {
+        store.user.preferencias = { ...store.user.preferencias, ...prefs };
+        saveStore(store);
+      }
+    }
+
+    function getOportunidades() {
+      const store = getStore();
+      return store.oportunidades || [];
+    }
+
+    function getDailyCount() {
+      const store = getStore();
+      const today = new Date().toDateString();
+      if (store.dailyCount.date !== today) {
+        store.dailyCount = { count: 0, date: today };
+        saveStore(store);
+      }
+      return store.dailyCount;
+    }
+
+    function incrementDailyCount() {
+      const store = getStore();
+      const today = new Date().toDateString();
+      if (store.dailyCount.date !== today) {
+        store.dailyCount = { count: 1, date: today };
+      } else {
+        store.dailyCount.count++;
+      }
+      saveStore(store);
+    }
+
+    // ==================== MOCK DATA ====================
+    function generateMockOportunidades() {
+      const categorias = ['TI e Programação', 'Design', 'Marketing Digital', 'Redação e Tradução', 'Video e Animação', 'Consultoria'];
+      const titulos = [
+        'Desenvolvedor React Sênior para E-commerce', 'Designer UI/UX para App Mobile', 'Redator de Conteúdo para Blog Tech',
+        'Editor de Vídeo para YouTube', 'Consultor de Marketing Digital', 'Desenvolvedor Node.js Backend',
+        'Designer de Marca - Identidade Visual', 'Tradutor Inglês-Português para Site', 'Motion Designer para Reels',
+        'Especialista em Google Ads', 'Desenvolvedor Fullstack Python/Django', 'Ilustrador para Livro Infantil',
+        'Gestor de Tráfego Pago', 'DevOps Engineer AWS', 'Social Media Manager'
+      ];
+      const ops = [];
+      for (let i = 0; i < 20; i++) {
+        const cat = categorias[i % categorias.length];
+        ops.push({
+          id: i + 1,
+          titulo: titulos[i % titulos.length],
+          categoria: cat,
+          orcamento: Math.floor(Math.random() * 15000) + 500,
+          descricao: 'Projeto incrível para profissional qualificado. Detalhes completos no link.',
+          link: 'https://exemplo.com/projeto/' + (i + 1),
+          palavras_chave: cat === 'TI e Programação' ? ['react', 'node', 'typescript'] : cat === 'Design' ? ['figma', 'ui', 'ux'] : ['marketing', 'digital', 'ads'],
+          data_publicacao: new Date(Date.now() - Math.floor(Math.random() * 86400000 * 3)).toISOString(),
+          data_captura: new Date().toISOString()
+        });
+      }
+      return ops;
+    }
+
+    // ==================== ROUTER ====================
+    let currentRoute = '#home';
+
+    function navigateTo(hash) {
+      currentRoute = hash;
+      window.location.hash = hash;
+      renderRoute();
+      scrollToTop();
+    }
+
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderRoute() {
+      const hash = window.location.hash || '#home';
+      currentRoute = hash;
+
+      const landingContainer = document.getElementById('landing-container');
+      const appContainer = document.getElementById('app-container');
+      const legalContainer = document.getElementById('legal-container');
+      const mainHeader = document.getElementById('main-header');
+      const appMainContent = document.getElementById('app-main-content');
+
+      // Reset all
+      landingContainer.classList.add('hidden');
+      appContainer.classList.add('hidden');
+      legalContainer.classList.add('hidden');
+      mainHeader.style.display = '';
+
+      const authRoutes = ['#dashboard', '#radar', '#oportunidades', '#telegram', '#plano', '#perfil', '#configuracoes'];
+      const legalRoutes = ['#termos', '#privacidade'];
+
+      if (authRoutes.includes(hash)) {
+        // Check auth
+        if (!getCurrentUser()) {
+          navigateTo('#login');
+          return;
+        }
+        appContainer.classList.remove('hidden');
+        renderAppPage(hash, appMainContent);
+        updateSidebarActive(hash);
+      } else if (legalRoutes.includes(hash)) {
+        legalContainer.classList.remove('hidden');
+        renderLegalPage(hash, legalContainer);
+      } else {
+        landingContainer.classList.remove('hidden');
+        if (hash === '#cadastro' || hash === '#login') {
+          // Scroll to form section within landing
+          scrollToAuthForm(hash);
+        }
+      }
+    }
+
+    function scrollToAuthForm(hash) {
+      const formId = hash === '#cadastro' ? 'cadastro-section' : 'login-section';
+      const el = document.getElementById(formId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        // Create the form dynamically within landing container
+        renderAuthFormInline(hash);
+      }
+    }
+
+    function renderAuthFormInline(hash) {
+      // Remove existing inline auth forms
+      const existing = document.querySelector('.inline-auth-form');
+      if (existing) existing.remove();
+
+      const landingContainer = document.getElementById('landing-container');
+      const formWrapper = document.createElement('div');
+      formWrapper.className = 'inline-auth-form py-16 bg-bglight';
+      formWrapper.id = hash === '#cadastro' ? 'cadastro-section' : 'login-section';
+
+      if (hash === '#cadastro') {
+        formWrapper.innerHTML = `
+          <div class="max-w-md mx-auto px-4">
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+              <h2 class="text-2xl font-bold text-center mb-6">Criar Conta</h2>
+              <form onsubmit="handleCadastro(event)" class="space-y-4">
+                <div><label class="block text-sm font-medium mb-1">Nome completo</label><input type="text" id="cad-nome" required class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="Seu nome"></div>
+                <div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="cad-email" required class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="email@exemplo.com"></div>
+                <div><label class="block text-sm font-medium mb-1">Senha</label><input type="password" id="cad-senha" required minlength="6" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="Mínimo 6 caracteres"></div>
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">🚀 Criar Conta</button>
+              </form>
+              <p class="text-center text-sm text-gray-500 mt-4">Já tem conta? <a href="#login" onclick="navigateTo('#login')" class="text-primary font-semibold">Entrar</a></p>
+            </div>
+          </div>`;
+      } else {
+        formWrapper.innerHTML = `
+          <div class="max-w-md mx-auto px-4">
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+              <h2 class="text-2xl font-bold text-center mb-6">Entrar</h2>
+              <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="login-email" required class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="email@exemplo.com"></div>
+                <div><label class="block text-sm font-medium mb-1">Senha</label><input type="password" id="login-senha" required class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="Sua senha"></div>
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">Entrar</button>
+              </form>
+              <p class="text-center text-sm text-gray-500 mt-4">Não tem conta? <a href="#cadastro" onclick="navigateTo('#cadastro')" class="text-primary font-semibold">Criar conta</a></p>
+            </div>
+          </div>`;
+      }
+
+      landingContainer.appendChild(formWrapper);
+      formWrapper.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function renderAppPage(hash, container) {
+      switch (hash) {
+        case '#dashboard': renderDashboard(container); break;
+        case '#radar': renderRadar(container); break;
+        case '#oportunidades': renderOportunidades(container); break;
+        case '#telegram': renderTelegram(container); break;
+        case '#plano': renderPlanoPage(container); break;
+        case '#perfil': renderPerfil(container); break;
+        case '#configuracoes': renderConfiguracoes(container); break;
+      }
+    }
+
+    function renderLegalPage(hash, container) {
+      if (hash === '#termos') {
+        container.innerHTML = `
+          <h1 class="text-3xl font-bold mb-6">Termos de Uso</h1>
+          <div class="prose max-w-none text-gray-600 space-y-4">
+            <p><strong>Última atualização:</strong> 20 de Março de 2025</p>
+            <p>Bem-vindo ao FreelaBot. Ao utilizar nossos serviços, você concorda com estes Termos de Uso. Leia atentamente.</p>
+            <h3 class="text-xl font-semibold text-secondary mt-6">1. Aceitação dos Termos</h3>
+            <p>Ao criar uma conta no FreelaBot, você concorda em cumprir estes termos. Caso não concorde, não utilize o serviço.</p>
+            <h3 class="text-xl font-semibold text-secondary mt-6">2. Descrição do Serviço</h3>
+            <p>O FreelaBot é um serviço de monitoramento e notificação de oportunidades freelance via Telegram. Não garantimos a veracidade ou qualidade das oportunidades encontradas.</p>
+            <h3 class="text-xl font-semibold text-secondary mt-6">3. Cadastro e Conta</h3>
+            <p>Você é responsável por manter a confidencialidade de suas credenciais. Informações falsas podem resultar em suspensão da conta.</p>
+            <h3 class="text-xl font-semibold text-secondary mt-6">4. Planos e Pagamentos</h3>
+            <p>Oferecemos planos gratuitos e pagos. Os valores e condições estão descritos na página de planos. Pagamentos são processados via parceiros seguros.</p>
+            <h3 class="text-xl font-semibold text-secondary mt-6">5. Limitação de Responsabilidade</h3>
+            <p>O FreelaBot não se responsabiliza por negociações entre freelancers e contratantes. Nosso papel é exclusivamente informativo.</p>
+            <p class="pt-4 text-sm text-gray-400">Estes termos são um mock para fins de demonstração.</p>
+          </div>`;
+      } else if (hash === '#privacidade') {
+        container.innerHTML = `
+          <h1 class="text-3xl font-bold mb-6">Política de Privacidade</h1>
+          <div class="prose max-w-none text-gray-600 space-y-4">
+            <p><strong>Última atualização:</strong> 20 de Março de 2025</p>
+            <p>No FreelaBot, a privacidade dos seus dados é nossa prioridade. Esta política descreve como coletamos, usamos e protegemos suas informações.</p>
+            <h3 class="text-xl font-semibold text-secondary mt-6">1. Dados Coletados</h3>
+            <p>Coletamos nome, email e preferências de monitoramento (categorias, palavras-chave, orçamento mínimo). Não coletamos dados sensíveis ou financeiros.</p>
+            <h3 class="text-xl font-semibold text-secondary mt-6">2. Uso dos Dados</h3>
+            <p>Seus dados são usados exclusivamente para personalizar e entregar o serviço de notificações. Não compartilhamos informações com terceiros.</p>
+            <h3 class="text-xl font-semibold text-secondary mt-6">3. Armazenamento</h3>
+            <p>Os dados são armazenados em servidores seguros com criptografia. Utilizamos medidas técnicas para prevenir acessos não autorizados.</p>
+            <h3 class="text-xl font-semibold text-secondary mt-6">4. Seus Direitos</h3>
+            <p>Você pode solicitar a exclusão completa dos seus dados a qualquer momento através do email contato@freelabot.com.br.</p>
+            <p class="pt-4 text-sm text-gray-400">Esta política é um mock para fins de demonstração.</p>
+          </div>`;
+      }
+    }
+
+    function updateSidebarActive(hash) {
+      document.querySelectorAll('.sidebar-link').forEach(el => {
+        el.classList.remove('bg-primary/10', 'text-primary', 'font-bold');
+        if (el.getAttribute('href') === hash) {
+          el.classList.add('bg-primary/10', 'text-primary', 'font-bold');
+        }
+      });
+      document.querySelectorAll('.sidebar-link-mobile').forEach(el => {
+        el.classList.remove('text-primary');
+        if (el.getAttribute('href') === hash) {
+          el.classList.add('text-primary');
+        }
+      });
+    }
+
+    // ==================== PAGE RENDERERS ====================
+    function renderDashboard(container) {
+      const user = getCurrentUser();
+      if (!user) return;
+      const daily = getDailyCount();
+      const limitReached = user.plano === 'gratuito' && daily.count >= 2;
+
+      container.innerHTML = `
+        <div class="p-4 sm:p-6 lg:p-8">
+          <h1 class="text-2xl font-bold mb-1">👋 Olá, ${user.nome}!</h1>
+          <p class="text-gray-500 mb-6">Bem-vindo ao seu painel de controle.</p>
+
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white rounded-2xl border border-gray-200 p-5">
+              <div class="text-sm text-gray-400 mb-1">Oportunidades hoje</div>
+              <div class="text-3xl font-extrabold text-primary">${daily.count}<span class="text-sm text-gray-400 font-normal">/${user.plano === 'gratuito' ? '2' : '∞'}</span></div>
+              ${limitReached ? '<p class="text-xs text-red-500 mt-1">⚠️ Limite diário atingido. <a href="#plano" onclick="navigateTo(\'#plano\')" class="underline">Upgrade</a></p>' : ''}
+            </div>
+            <div class="bg-white rounded-2xl border border-gray-200 p-5">
+              <div class="text-sm text-gray-400 mb-1">Plano atual</div>
+              <div class="text-xl font-bold text-accent capitalize">${user.plano}</div>
+              ${user.plano === 'gratuito' ? '<a href="#plano" onclick="navigateTo(\'#plano\')" class="text-xs text-primary underline">Fazer upgrade →</a>' : ''}
+            </div>
+            <div class="bg-white rounded-2xl border border-gray-200 p-5">
+              <div class="text-sm text-gray-400 mb-1">Telegram</div>
+              <div class="text-xl font-bold ${user.telegram_id ? 'text-accent' : 'text-gray-400'}">${user.telegram_id ? '✅ Conectado' : '❌ Não conectado'}</div>
+              ${!user.telegram_id ? '<a href="#telegram" onclick="navigateTo(\'#telegram\')" class="text-xs text-primary underline">Conectar agora →</a>' : ''}
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-gray-200 p-5">
+            <h3 class="font-bold mb-3">⚡ Ações rápidas</h3>
+            <div class="flex flex-wrap gap-3">
+              <a href="#radar" onclick="navigateTo('#radar')" class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition">Configurar Radar</a>
+              <a href="#oportunidades" onclick="navigateTo('#oportunidades')" class="bg-bglight text-secondary px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-200 transition">Ver Oportunidades</a>
+              ${user.plano === 'gratuito' ? `<a href="#plano" onclick="navigateTo('#plano')" class="bg-accent text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-emerald-600 transition">⭐ Fazer Upgrade</a>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderRadar(container) {
+      const user = getCurrentUser();
+      if (!user) return;
+      const prefs = user.preferencias || { categorias: [], palavras_chave: [], palavras_excluidas: [], orcamento_minimo: 200, alertas_ativos: true };
+      const categorias = ['TI e Programação', 'Design', 'Marketing Digital', 'Redação e Tradução', 'Video e Animação', 'Consultoria'];
+
+      container.innerHTML = `
+        <div class="p-4 sm:p-6 lg:p-8">
+          <h1 class="text-2xl font-bold mb-6">📡 Meu Radar</h1>
+          <form onsubmit="handleSaveRadar(event)" class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+            <div>
+              <label class="block font-semibold mb-2">📂 Categorias</label>
+              <div class="grid sm:grid-cols-2 gap-2">
+                ${categorias.map(c => `<label class="flex items-center gap-2 p-2 rounded-lg hover:bg-bglight cursor-pointer"><input type="checkbox" value="${c}" ${prefs.categorias.includes(c) ? 'checked' : ''} class="radar-categoria w-4 h-4 text-primary rounded"> ${c}</label>`).join('')}
+              </div>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2">💰 Orçamento mínimo (R$)</label>
+              <input type="number" id="radar-orcamento" value="${prefs.orcamento_minimo}" min="0" step="50" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="Ex: 500">
+            </div>
+            <div>
+              <label class="block font-semibold mb-2">🔑 Palavras-chave (separadas por vírgula)</label>
+              <input type="text" id="radar-keywords" value="${prefs.palavras_chave.join(', ')}" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="react, figma, node">
+            </div>
+            <div>
+              <label class="block font-semibold mb-2">🚫 Palavras excluídas (separadas por vírgula)</label>
+              <input type="text" id="radar-excluidas" value="${prefs.palavras_excluidas.join(', ')}" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="wordpress, elementor">
+            </div>
+            <div class="flex items-center gap-3">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="radar-alertas" ${prefs.alertas_ativos ? 'checked' : ''} class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
+              </label>
+              <span class="font-semibold">Alertas ativos</span>
+            </div>
+            <button type="submit" class="bg-primary text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition">💾 Salvar Preferências</button>
+          </form>
+        </div>`;
+    }
+
+    function renderOportunidades(container) {
+      const user = getCurrentUser();
+      if (!user) return;
+      const todas = getOportunidades();
+      const prefs = user.preferencias || {};
+
+      // Filter based on preferences
+      let filtradas = todas.filter(op => {
+        if (prefs.categorias && prefs.categorias.length > 0 && !prefs.categorias.includes(op.categoria)) return false;
+        if (prefs.orcamento_minimo && op.orcamento < prefs.orcamento_minimo) return false;
+        return true;
+      });
+
+      // Check daily limit for free plan
+      const daily = getDailyCount();
+      const limitReached = user.plano === 'gratuito' && daily.count >= 2;
+
+      if (limitReached) {
+        container.innerHTML = `
+          <div class="p-4 sm:p-6 lg:p-8">
+            <h1 class="text-2xl font-bold mb-6">💼 Oportunidades</h1>
+            <div class="empty-state bg-white rounded-2xl border border-gray-200 p-10 text-center">
+              <div class="text-5xl mb-4">🔒</div>
+              <h3 class="text-xl font-bold mb-2">Limite diário atingido</h3>
+              <p class="text-gray-500 mb-4">Você já visualizou 2 oportunidades hoje. Faça upgrade para o plano Premium e receba oportunidades ilimitadas!</p>
+              <a href="#plano" onclick="navigateTo('#plano')" class="inline-block bg-accent text-white font-bold px-6 py-3 rounded-xl hover:bg-emerald-600 transition">⭐ Fazer Upgrade</a>
+            </div>
+          </div>`;
+        return;
+      }
+
+      if (filtradas.length === 0) {
+        container.innerHTML = `
+          <div class="p-4 sm:p-6 lg:p-8">
+            <h1 class="text-2xl font-bold mb-6">💼 Oportunidades</h1>
+            <div class="empty-state bg-white rounded-2xl border border-gray-200 p-10 text-center">
+              <div class="text-5xl mb-4">📭</div>
+              <h3 class="text-xl font-bold mb-2">Nenhuma oportunidade ainda</h3>
+              <p class="text-gray-500 mb-4">Configure seu radar para começar a receber oportunidades que combinam com você!</p>
+              <a href="#radar" onclick="navigateTo('#radar')" class="inline-block bg-primary text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition">Configurar Radar</a>
+            </div>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="p-4 sm:p-6 lg:p-8">
+          <h1 class="text-2xl font-bold mb-4">💼 Oportunidades (${filtradas.length})</h1>
+          <div class="mb-4">
+            <input type="text" id="ops-search" oninput="filterOportunidadesList()" placeholder="🔍 Buscar por título ou palavra-chave..." class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition">
+          </div>
+          <div class="space-y-3" id="ops-list">
+            ${filtradas.map(op => `
+              <div class="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-md transition ops-item" data-titulo="${op.titulo.toLowerCase()}" data-keywords="${(op.palavras_chave || []).join(' ').toLowerCase()}" data-categoria="${op.categoria.toLowerCase()}">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <h3 class="font-bold">${op.titulo}</h3>
+                    <p class="text-xs text-gray-400 mt-1">📂 ${op.categoria} • 💰 R$ ${op.orcamento.toLocaleString('pt-BR')} • 🕐 ${timeAgo(op.data_publicacao)}</p>
+                    <div class="flex flex-wrap gap-1 mt-2">${(op.palavras_chave || []).map(k => `<span class="bg-accent/10 text-accent text-xs px-2 py-0.5 rounded-full">🔑 ${k}</span>`).join('')}</div>
+                  </div>
+                </div>
+                <button onclick="handleViewOportunidade(${op.id})" class="mt-3 bg-primary text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Ver projeto →</button>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+
+    function renderTelegram(container) {
+      const user = getCurrentUser();
+      if (!user) return;
+      const connected = !!user.telegram_id;
+
+      container.innerHTML = `
+        <div class="p-4 sm:p-6 lg:p-8">
+          <h1 class="text-2xl font-bold mb-6">💬 Conectar Telegram</h1>
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 max-w-lg">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-16 h-16 ${connected ? 'bg-accent/10' : 'bg-gray-100'} rounded-full flex items-center justify-center text-3xl">${connected ? '✅' : '📱'}</div>
+              <div>
+                <div class="font-bold text-lg">${connected ? 'Telegram Conectado' : 'Telegram Não Conectado'}</div>
+                <div class="text-sm text-gray-500">${connected ? `ID: ${user.telegram_id}` : 'Vincule sua conta Telegram para receber alertas'}</div>
+              </div>
+            </div>
+            ${!connected ? `
+              <button onclick="handleConnectTelegram()" class="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition mb-3">🔗 Conectar Telegram</button>
+            ` : `
+              <button onclick="handleTestTelegram()" class="w-full bg-accent text-white font-bold py-3 rounded-xl hover:bg-emerald-600 transition mb-3">📨 Enviar Alerta de Teste</button>
+              <button onclick="showModal('Tem certeza que deseja desconectar o Telegram?', handleDisconnectTelegram)" class="w-full border-2 border-red-300 text-red-500 font-bold py-3 rounded-xl hover:bg-red-50 transition">🚫 Desconectar Telegram</button>
+            `}
+            <div class="mt-6 p-4 bg-bglight rounded-xl text-sm text-gray-600">
+              <p class="font-semibold mb-2">📋 Como conectar:</p>
+              <ol class="list-decimal list-inside space-y-1">
+                <li>Clique no botão "Conectar Telegram" acima</li>
+                <li>Você será redirecionado para o bot @FreelaBot no Telegram</li>
+                <li>Envie o comando <code class="bg-gray-200 px-1 rounded">/start</code></li>
+                <li>Pronto! Seus alertas começarão a chegar</li>
+              </ol>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderPlanoPage(container) {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      container.innerHTML = `
+        <div class="p-4 sm:p-6 lg:p-8">
+          <h1 class="text-2xl font-bold mb-6">⭐ Meu Plano</h1>
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 max-w-lg mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="text-sm text-gray-400">Plano atual</div>
+                <div class="text-2xl font-bold capitalize text-accent">${user.plano}</div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm text-gray-400">Status</div>
+                <div class="font-semibold text-accent">✅ Ativo</div>
+              </div>
+            </div>
+            <div class="border-t border-gray-100 pt-4 space-y-2 text-sm">
+              <div class="flex justify-between"><span>📅 Início:</span><span>${user.data_cadastro}</span></div>
+              <div class="flex justify-between"><span>🔄 Renovação:</span><span>${user.plano === 'gratuito' ? 'N/A' : '30 dias'}</span></div>
+              <div class="flex justify-between"><span>📊 Oportunidades/dia:</span><span>${user.plano === 'gratuito' ? '2' : 'Ilimitadas'}</span></div>
+            </div>
+          </div>
+          ${user.plano === 'gratuito' ? `
+            <div class="bg-gradient-to-r from-accent/5 to-primary/5 rounded-2xl border border-accent/20 p-6 max-w-lg">
+              <h3 class="font-bold text-lg mb-2">🚀 Faça upgrade para Premium</h3>
+              <p class="text-sm text-gray-600 mb-4">Oportunidades ilimitadas, filtros avançados e muito mais.</p>
+              <button onclick="handleUpgrade()" class="bg-accent text-white font-bold px-6 py-3 rounded-xl hover:bg-emerald-600 transition">⭐ Assinar Premium — R$ 29/mês</button>
+            </div>
+          ` : '<p class="text-sm text-gray-500">Você já está no plano Premium. Aproveite!</p>'}
+        </div>`;
+    }
+
+    function renderPerfil(container) {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      container.innerHTML = `
+        <div class="p-4 sm:p-6 lg:p-8">
+          <h1 class="text-2xl font-bold mb-6">👤 Perfil</h1>
+          <form onsubmit="handleSavePerfil(event)" class="bg-white rounded-2xl border border-gray-200 p-6 max-w-lg space-y-4">
+            <div><label class="block text-sm font-medium mb-1">Nome</label><input type="text" id="perfil-nome" value="${user.nome}" required class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"></div>
+            <div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="perfil-email" value="${user.email}" required class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"></div>
+            <div><label class="block text-sm font-medium mb-1">Nova senha (deixe em branco para manter)</label><input type="password" id="perfil-senha" minlength="6" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="Mínimo 6 caracteres"></div>
+            <button type="submit" class="bg-primary text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition">💾 Salvar Alterações</button>
+          </form>
+        </div>`;
+    }
+
+    function renderConfiguracoes(container) {
+      container.innerHTML = `
+        <div class="p-4 sm:p-6 lg:p-8">
+          <h1 class="text-2xl font-bold mb-6">⚙️ Configurações</h1>
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 max-w-lg space-y-4">
+            <div class="flex items-center justify-between">
+              <div><div class="font-medium">Notificações por email</div><div class="text-sm text-gray-400">Resumo semanal de oportunidades</div></div>
+              <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked class="sr-only peer"><div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div></label>
+            </div>
+            <div class="flex items-center justify-between">
+              <div><div class="font-medium">Som de notificação</div><div class="text-sm text-gray-400">Alertas sonoros no Telegram</div></div>
+              <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked class="sr-only peer"><div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div></label>
+            </div>
+            <div class="flex items-center justify-between">
+              <div><div class="font-medium">Modo escuro</div><div class="text-sm text-gray-400">Interface em tons escuros</div></div>
+              <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer"><div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div></label>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // ==================== UI HELPERS ====================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: 'bg-accent text-white',
+        error: 'bg-red-500 text-white',
+        info: 'bg-primary text-white'
+      };
+      const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+      const toast = document.createElement('div');
+      toast.className = `${colors[type]} px-5 py-3 rounded-xl shadow-lg font-medium text-sm toast-enter flex items-center gap-2`;
+      toast.innerHTML = `${icons[type]} ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3500);
+    }
+
+    function showModal(message, onConfirm) {
+      const overlay = document.getElementById('modal-overlay');
+      const content = document.getElementById('modal-content');
+      content.innerHTML = `
+        <p class="text-lg font-semibold mb-6">${message}</p>
+        <div class="flex gap-3 justify-end">
+          <button onclick="closeModal()" class="px-5 py-2.5 border border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition">Cancelar</button>
+          <button id="modal-confirm-btn" class="px-5 py-2.5 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition">Confirmar</button>
+        </div>`;
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+      document.getElementById('modal-confirm-btn').onclick = () => { closeModal(); if (onConfirm) onConfirm(); };
+    }
+
+    function closeModal(event) {
+      if (event && event.target !== document.getElementById('modal-overlay')) return;
+      document.getElementById('modal-overlay').classList.add('hidden');
+      document.getElementById('modal-overlay').classList.remove('flex');
+    }
+
+    function toggleAccordion(btn) {
+      const content = btn.nextElementSibling;
+      const arrow = btn.querySelector('.accordion-arrow');
+      content.classList.toggle('open');
+      arrow.classList.toggle('rotate-180');
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const hamburger = document.getElementById('hamburger-icon');
+      const closeIcon = document.getElementById('close-icon');
+      menu.classList.toggle('hidden');
+      hamburger.classList.toggle('hidden');
+      closeIcon.classList.toggle('hidden');
+    }
+
+    function timeAgo(dateStr) {
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60) return `há ${mins} min`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `há ${hours}h`;
+      return `há ${Math.floor(hours / 24)}d`;
+    }
+
+    // ==================== EVENT HANDLERS ====================
+    function handleCadastro(e) {
+      e.preventDefault();
+      const nome = document.getElementById('cad-nome').value.trim();
+      const email = document.getElementById('cad-email').value.trim();
+      const senha = document.getElementById('cad-senha').value;
+
+      if (!nome || !email || !senha) return showToast('Preencha todos os campos.', 'error');
+      if (!email.includes('@') || !email.includes('.')) return showToast('Email inválido.', 'error');
+      if (senha.length < 6) return showToast('Senha deve ter no mínimo 6 caracteres.', 'error');
+
+      const newUser = {
+        id: Date.now(),
+        nome,
+        email,
+        telegram_id: null,
+        plano: 'gratuito',
+        status: 'ativo',
+        data_cadastro: new Date().toISOString().split('T')[0],
+        preferencias: {
+          categorias: [],
+          palavras_chave: [],
+          palavras_excluidas: [],
+          orcamento_minimo: 200,
+          alertas_ativos: true
+        },
+        assinatura: {
+          plano: 'gratuito',
+          periodicidade: null,
+          status: 'ativa',
+          inicio: new Date().toISOString().split('T')[0],
+          renovacao: null,
+          cancelamento: null
+        }
+      };
+
+      setCurrentUser(newUser);
+      showToast('Conta criada com sucesso! 🎉', 'success');
+      setTimeout(() => navigateTo('#dashboard'), 500);
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const senha = document.getElementById('login-senha').value;
+
+      if (!email || !senha) return showToast('Preencha todos os campos.', 'error');
+
+      // Mock: check if user exists in store
+      const store = getStore();
+      if (store.user && store.user.email === email) {
+        showToast('Login realizado com sucesso! 👋', 'success');
+        setTimeout(() => navigateTo('#dashboard'), 500);
+      } else {
+        // Auto-create user for demo
+        const newUser = {
+          id: Date.now(),
+          nome: email.split('@')[0],
+          email,
+          telegram_id: null,
+          plano: 'gratuito',
+          status: 'ativo',
+          data_cadastro: new Date().toISOString().split('T')[0],
+          preferencias: {
+            categorias: ['TI e Programação'],
+            palavras_chave: ['react', 'node'],
+            palavras_excluidas: [],
+            orcamento_minimo: 500,
+            alertas_ativos: true
+          },
+          assinatura: {
+            plano: 'gratuito',
+            periodicidade: null,
+            status: 'ativa',
+            inicio: new Date().toISOString().split('T')[0],
+            renovacao: null,
+            cancelamento: null
+          }
+        };
+        setCurrentUser(newUser);
+        showToast('Login realizado (conta demo criada)! 👋', 'success');
+        setTimeout(() => navigateTo('#dashboard'), 500);
+      }
+    }
+
+    function handleSaveRadar(e) {
+      e.preventDefault();
+      const categorias = [...document.querySelectorAll('.radar-categoria:checked')].map(cb => cb.value);
+      const orcamento = parseInt(document.getElementById('radar-orcamento').value) || 200;
+      const keywords = document.getElementById('radar-keywords').value.split(',').map(s => s.trim()).filter(Boolean);
+      const excluidas = document.getElementById('radar-excluidas').value.split(',').map(s => s.trim()).filter(Boolean);
+      const alertas = document.getElementById('radar-alertas').checked;
+
+      updateUserPreferences({ categorias, orcamento_minimo: orcamento, palavras_chave: keywords, palavras_excluidas: excluidas, alertas_ativos: alertas });
+      showToast('Preferências salvas com sucesso! 📡', 'success');
+    }
+
+    function handleSavePerfil(e) {
+      e.preventDefault();
+      const nome = document.getElementById('perfil-nome').value.trim();
+      const email = document.getElementById('perfil-email').value.trim();
+      const senha = document.getElementById('perfil-senha').value;
+
+      if (!nome || !email) return showToast('Nome e email são obrigatórios.', 'error');
+      if (!email.includes('@')) return showToast('Email inválido.', 'error');
+
+      const user = getCurrentUser();
+      if (user) {
+        user.nome = nome;
+        user.email = email;
+        setCurrentUser(user);
+        showToast('Perfil atualizado com sucesso! 👤', 'success');
+      }
+    }
+
+    function handleConnectTelegram() {
+      // Mock: simulate Telegram connection
+      const user = getCurrentUser();
+      if (user) {
+        user.telegram_id = 'tg_' + Date.now();
+        setCurrentUser(user);
+        showToast('Telegram conectado com sucesso! 💬', 'success');
+        navigateTo('#telegram');
+      }
+    }
+
+    function handleDisconnectTelegram() {
+      const user = getCurrentUser();
+      if (user) {
+        user.telegram_id = null;
+        setCurrentUser(user);
+        showToast('Telegram desconectado.', 'info');
+        navigateTo('#telegram');
+      }
+    }
+
+    function handleTestTelegram() {
+      showToast('Alerta de teste enviado para o Telegram! 📨', 'success');
+    }
+
+    function handleUpgrade() {
+      const user = getCurrentUser();
+      if (user) {
+        user.plano = 'premium';
+        user.assinatura = {
+          plano: 'premium',
+          periodicidade: 'mensal',
+          status: 'ativa',
+          inicio: new Date().toISOString().split('T')[0],
+          renovacao: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+          cancelamento: null
+        };
+        setCurrentUser(user);
+        showToast('🎉 Upgrade para Premium realizado! Aproveite!', 'success');
+        navigateTo('#plano');
+      }
+    }
+
+    function handleViewOportunidade(id) {
+      incrementDailyCount();
+      const ops = getOportunidades();
+      const op = ops.find(o => o.id === id);
+      if (op) {
+        showToast(`🔗 Redirecionando para: ${op.titulo}`, 'info');
+        // In production: window.open(op.link, '_blank');
+      }
+    }
+
+    function filterOportunidadesList() {
+      const query = document.getElementById('ops-search').value.toLowerCase();
+      document.querySelectorAll('.ops-item').forEach(item => {
+        const titulo = item.dataset.titulo || '';
+        const keywords = item.dataset.keywords || '';
+        const categoria = item.dataset.categoria || '';
+        item.style.display = (titulo + ' ' + keywords + ' ' + categoria).includes(query) ? '' : 'none';
+      });
+    }
+
+    function logout() {
+      const store = getStore();
+      store.user = null;
+      saveStore(store);
+      showToast('Você saiu da sua conta. Até logo! 👋', 'info');
+      navigateTo('#home');
+    }
+
+    // ==================== STATS COUNTER ANIMATION ====================
+    function animateStats() {
+      const targets = [
+        { el: document.getElementById('stat-projetos'), target: 12483 },
+        { el: document.getElementById('stat-oportunidades'), target: 37521 },
+        { el: document.getElementById('stat-freelancers'), target: 8934 }
+      ];
+      targets.forEach(({ el, target }) => {
+        if (!el) return;
+        let current = 0;
+        const step = Math.ceil(target / 100);
+        const interval = setInterval(() => {
+          current += step;
+          if (current >= target) { current = target; clearInterval(interval); }
+          el.textContent = current.toLocaleString('pt-BR');
+        }, 20);
+      });
+    }
+
+    // ==================== INITIALIZATION ====================
+    function init() {
+      // Ensure store exists
+      if (!localStorage.getItem(STORE_KEY)) {
+        saveStore(getDefaultStore());
+      }
+
+      // Initial route
+      renderRoute();
+
+      // Listen for hash changes
+      window.addEventListener('hashchange', renderRoute);
+
+      // Animate stats when visible
+      const statsSection = document.querySelector('#landing-container section:nth-child(6)'); // Stats section
+      if (statsSection) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              animateStats();
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.3 });
+        observer.observe(statsSection);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+
+</body>
+</html>
