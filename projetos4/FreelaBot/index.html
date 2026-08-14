@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TechSolutions: soluções digitais sob medida em desenvolvimento web, aplicativos, cloud, IA, segurança e consultoria.">
+  <title>TechSolutions | Tecnologia que impulsiona seu negócio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: { brand: { 500: '#2563EB', 600: '#1D4ED8' }, emerald: { 500: '#10B981' } }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: Inter, sans-serif; }
+    .hero-grid { background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 42px 42px; }
+    .shape { position: absolute; border-radius: 9999px; filter: blur(1px); animation: float 8s ease-in-out infinite; }
+    .shape:nth-child(2) { animation-delay: -2s; animation-duration: 10s; }
+    .shape:nth-child(3) { animation-delay: -5s; animation-duration: 12s; }
+    @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-28px) rotate(12deg); } }
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .nav-open { transform: translateX(0) !important; }
+    .portfolio-overlay { opacity: 0; }
+    .portfolio-card:hover .portfolio-overlay, .portfolio-card:focus-within .portfolio-overlay { opacity: 1; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .shape { animation: none; } .reveal { opacity: 1; transform: none; transition: none; } }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+  <header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-900/95 text-white shadow-lg backdrop-blur">
+    <nav class="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Navegação principal">
+      <a href="#home" class="flex min-h-11 items-center gap-2 text-xl font-extrabold tracking-tight" aria-label="TechSolutions - Início">
+        <span class="grid h-10 w-10 place-items-center rounded-xl bg-blue-600 shadow-md" aria-hidden="true">TS</span>
+        <span>Tech<span class="text-blue-400">Solutions</span></span>
+      </a>
+      <div class="hidden items-center gap-7 lg:flex">
+        <a class="transition hover:text-blue-400" href="#home">Home</a>
+        <a class="transition hover:text-blue-400" href="#about">Sobre Nós</a>
+        <a class="transition hover:text-blue-400" href="#services">Serviços</a>
+        <a class="transition hover:text-blue-400" href="#portfolio">Portfólio</a>
+        <a class="transition hover:text-blue-400" href="#contact">Contato</a>
+        <button data-open-modal class="min-h-11 rounded-lg bg-blue-600 px-5 py-3 font-semibold shadow-md transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">Acesso Exclusivo</button>
+      </div>
+      <button id="menu-toggle" class="grid h-11 w-11 place-items-center rounded-lg border border-slate-600 lg:hidden" aria-label="Abrir menu" aria-controls="mobile-menu" aria-expanded="false">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="fixed right-0 top-20 h-[calc(100vh-5rem)] w-72 translate-x-full bg-slate-900 p-6 shadow-2xl transition-transform duration-300 lg:hidden">
+      <div class="flex flex-col gap-2">
+        <a class="min-h-11 rounded-lg px-4 py-3 hover:bg-slate-800" href="#home">Home</a>
+        <a class="min-h-11 rounded-lg px-4 py-3 hover:bg-slate-800" href="#about">Sobre Nós</a>
+        <a class="min-h-11 rounded-lg px-4 py-3 hover:bg-slate-800" href="#services">Serviços</a>
+        <a class="min-h-11 rounded-lg px-4 py-3 hover:bg-slate-800" href="#portfolio">Portfólio</a>
+        <a class="min-h-11 rounded-lg px-4 py-3 hover:bg-slate-800" href="#contact">Contato</a>
+        <button data-open-modal class="mt-3 min-h-11 rounded-lg bg-blue-600 px-5 py-3 text-left font-semibold hover:bg-blue-700">Acesso Exclusivo</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="hero-grid relative flex min-h-screen items-center overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-blue-700 pt-20 text-white">
+      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="shape left-[8%] top-[20%] h-28 w-28 bg-blue-400/20"></div>
+        <div class="shape bottom-[18%] right-[8%] h-52 w-52 bg-emerald-400/20"></div>
+        <div class="shape right-[30%] top-[18%] h-16 w-16 bg-amber-400/30"></div>
+      </div>
+      <div class="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <div class="max-w-4xl">
+          <span class="mb-6 inline-flex rounded-full border border-blue-300/30 bg-blue-400/10 px-4 py-2 text-sm font-semibold text-blue-200">Inovação • Estratégia • Resultados</span>
+          <h1 class="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">Tecnologia que <span class="text-blue-400">impulsiona</span> seu negócio</h1>
+          <p class="mt-6 max-w-2xl text-lg leading-relaxed text-slate-200 sm:text-xl">Soluções digitais sob medida para empresas inovadoras</p>
+          <div class="mt-10 flex flex-col gap-4 sm:flex-row">
+            <a href="#contact" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-blue-700">Fale Conosco</a>
+            <a href="#portfolio" class="inline-flex min-h-11 items-center justify-center rounded-lg border-2 border-white px-6 py-3 font-semibold text-white transition hover:bg-white hover:text-blue-700">Ver Portfólio</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="scroll-mt-20 bg-white py-16 md:py-24">
+      <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
+        <div class="reveal">
+          <span class="text-sm font-bold uppercase tracking-widest text-blue-600">Quem somos</span>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Sobre a TechSolutions</h2>
+          <p class="mt-6 leading-relaxed text-slate-600">Somos uma empresa focada em transformar desafios em oportunidades digitais. Com +10 anos de mercado, unimos expertise técnica e visão estratégica.</p>
+          <ul class="ml-5 mt-5 list-disc space-y-3 text-slate-600 marker:text-blue-600">
+            <li>Equipe certificada em AWS, Azure e Google Cloud</li>
+            <li>Metodologias ágeis (Scrum, Kanban)</li>
+            <li>+120 projetos entregues com sucesso</li>
+          </ul>
+        </div>
+        <div class="reveal relative">
+          <div class="absolute -inset-4 -z-10 rotate-3 rounded-3xl bg-gradient-to-r from-blue-100 to-emerald-100"></div>
+          <img src="https://via.placeholder.com/600x400?text=Equipe+TechSolutions" alt="Equipe da TechSolutions colaborando" class="w-full rounded-2xl object-cover shadow-xl" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+    <section id="services" class="scroll-mt-20 bg-slate-50 py-16 md:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal mx-auto max-w-2xl text-center">
+          <span class="text-sm font-bold uppercase tracking-widest text-blue-600">O que fazemos</span>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Soluções para sua evolução digital</h2>
+          <p class="mt-4 text-slate-600">Tecnologia, estratégia e execução reunidas para gerar resultados consistentes.</p>
+        </div>
+        <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <article class="reveal rounded-xl bg-white p-7 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-lg"><div class="text-4xl" aria-hidden="true">🚀</div><h3 class="mt-5 text-xl font-bold">Desenvolvimento Web</h3><p class="mt-3 leading-relaxed text-slate-600">Sites, portais e sistemas sob medida com as melhores práticas de UX/UI.</p></article>
+          <article class="reveal rounded-xl bg-white p-7 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-lg"><div class="text-4xl" aria-hidden="true">📱</div><h3 class="mt-5 text-xl font-bold">Aplicativos Mobile</h3><p class="mt-3 leading-relaxed text-slate-600">Apps nativos e híbridos (React Native, Flutter) com performance e design.</p></article>
+          <article class="reveal rounded-xl bg-white p-7 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-lg"><div class="text-4xl" aria-hidden="true">☁️</div><h3 class="mt-5 text-xl font-bold">Cloud &amp; Infraestrutura</h3><p class="mt-3 leading-relaxed text-slate-600">Migração, monitoramento e otimização em nuvem para escalabilidade.</p></article>
+          <article class="reveal rounded-xl bg-white p-7 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-lg"><div class="text-4xl" aria-hidden="true">🤖</div><h3 class="mt-5 text-xl font-bold">Inteligência Artificial</h3><p class="mt-3 leading-relaxed text-slate-600">Chatbots, automação e análise preditiva integrados ao seu negócio.</p></article>
+          <article class="reveal rounded-xl bg-white p-7 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-lg"><div class="text-4xl" aria-hidden="true">🔒</div><h3 class="mt-5 text-xl font-bold">Segurança da Informação</h3><p class="mt-3 leading-relaxed text-slate-600">Auditoria, pentest e adequação à LGPD.</p></article>
+          <article class="reveal rounded-xl bg-white p-7 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-lg"><div class="text-4xl" aria-hidden="true">📊</div><h3 class="mt-5 text-xl font-bold">Consultoria Digital</h3><p class="mt-3 leading-relaxed text-slate-600">Diagnóstico, planejamento estratégico e transformação digital.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="portfolio" class="scroll-mt-20 bg-slate-900 py-16 text-white md:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal max-w-2xl">
+          <span class="text-sm font-bold uppercase tracking-widest text-blue-400">Cases de sucesso</span>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Projetos que geram impacto</h2>
+          <p class="mt-4 text-slate-300">Conheça algumas soluções criadas em parceria com nossos clientes.</p>
+        </div>
+        <div class="mt-12 grid gap-8 md:grid-cols-2">
+          <article class="portfolio-card reveal overflow-hidden rounded-xl bg-slate-800 shadow-xl">
+            <div class="relative overflow-hidden"><img src="https://via.placeholder.com/500x300?text=Projeto+1" alt="Prévia do SaaS de Gestão" class="h-64 w-full object-cover transition duration-500 hover:scale-105" loading="lazy"><div class="portfolio-overlay absolute inset-0 grid place-items-center bg-blue-700/85 transition-opacity duration-300"><span class="text-2xl font-bold">SaaS de Gestão</span></div></div>
+            <div class="p-6"><h3 class="text-xl font-bold">SaaS de Gestão</h3><p class="mt-2 text-slate-300">Plataforma completa para RH com inteligência artificial.</p><div class="mt-5 flex flex-wrap gap-2"><span class="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">React</span><span class="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">Node.js</span><span class="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">AWS</span></div></div>
+          </article>
+          <article class="portfolio-card reveal overflow-hidden rounded-xl bg-slate-800 shadow-xl">
+            <div class="relative overflow-hidden"><img src="https://via.placeholder.com/500x300?text=Projeto+2" alt="Prévia do aplicativo de delivery" class="h-64 w-full object-cover transition duration-500 hover:scale-105" loading="lazy"><div class="portfolio-overlay absolute inset-0 grid place-items-center bg-blue-700/85 transition-opacity duration-300"><span class="text-2xl font-bold">App Delivery</span></div></div>
+            <div class="p-6"><h3 class="text-xl font-bold">App Delivery</h3><p class="mt-2 text-slate-300">Aplicativo com rastreamento em tempo real e pagamentos integrados.</p><div class="mt-5 flex flex-wrap gap-2"><span class="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">Flutter</span><span class="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">Firebase</span><span class="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">Stripe</span></div></div>
+          </article>
+          <article class="portfolio-card reveal overflow-hidden rounded-xl bg-slate-800 shadow-xl md:col-span-2 md:grid md:grid-cols-2">
+            <div class="relative overflow-hidden"><img src="https://via.placeholder.com/500x300?text=Projeto+3" alt="Prévia do portal corporativo" class="h-full min-h-64 w-full object-cover transition duration-500 hover:scale-105" loading="lazy"><div class="portfolio-overlay absolute inset-0 grid place-items-center bg-blue-700/85 transition-opacity duration-300"><span class="text-2xl font-bold">Portal Corporativo</span></div></div>
+            <div class="flex flex-col justify-center p-8"><h3 class="text-2xl font-bold">Portal Corporativo</h3><p class="mt-3 text-slate-300">Site institucional com CMS e dashboard analítico.</p><div class="mt-5 flex flex-wrap gap-2"><span class="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">Next.js</span><span class="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">Tailwind</span><span class="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">Supabase</span></div></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="scroll-mt-20 bg-white py-16 md:py-24">
+      <div class="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
+        <div class="reveal">
+          <span class="text-sm font-bold uppercase tracking-widest text-blue-600">Vamos conversar</span>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Entre em Contato</h2>
+          <form id="contact-form" method="POST" class="mt-8 space-y-4">
+            <label class="sr-only" for="nome">Seu nome</label><input class="min-h-11 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500" id="nome" name="nome" type="text" placeholder="Seu nome" required>
+            <label class="sr-only" for="email">E-mail</label><input class="min-h-11 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500" id="email" name="email" type="email" placeholder="seu@email.com" required>
+            <label class="sr-only" for="telefone">Telefone</label><input class="min-h-11 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500" id="telefone" name="telefone" type="tel" placeholder="(11) 99999-9999">
+            <label class="sr-only" for="servico">Serviço</label><select class="min-h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500" id="servico" name="servico"><option value="">Selecione um serviço</option><option>Desenvolvimento Web</option><option>Aplicativos Mobile</option><option>Cloud &amp; Infra</option><option>Outros</option></select>
+            <label class="sr-only" for="mensagem">Mensagem</label><textarea class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500" id="mensagem" name="mensagem" rows="4" placeholder="Descreva seu projeto..."></textarea>
+            <button class="min-h-11 w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-blue-700 sm:w-auto" type="submit">Enviar Mensagem</button>
+          </form>
+        </div>
+        <aside class="reveal rounded-2xl bg-slate-900 p-8 text-white shadow-xl md:p-10">
+          <h3 class="text-2xl font-bold">Prontos para tirar sua ideia do papel</h3>
+          <p class="mt-4 leading-relaxed text-slate-300">Fale com nossos especialistas e descubra a melhor estratégia para o seu projeto.</p>
+          <ul class="mt-8 space-y-6">
+            <li><span class="block text-sm text-slate-400">Telefone</span><a href="tel:+5511999999999" class="mt-1 inline-block font-semibold hover:text-blue-400">+55 (11) 99999-9999</a></li>
+            <li><span class="block text-sm text-slate-400">E-mail</span><a href="mailto:contato@techsolutions.com" class="mt-1 inline-block font-semibold hover:text-blue-400">contato@techsolutions.com</a></li>
+            <li><span class="block text-sm text-slate-400">Endereço</span><address class="mt-1 font-semibold not-italic">Av. Paulista, 1000 - São Paulo/SP</address></li>
+          </ul>
+          <div class="mt-8 flex gap-3"><a href="https://linkedin.com/company/techsolutions" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-11 items-center rounded-lg border border-slate-600 px-4 py-2 font-semibold hover:border-blue-400 hover:text-blue-400">LinkedIn</a><a href="https://instagram.com/techsolutions" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-11 items-center rounded-lg border border-slate-600 px-4 py-2 font-semibold hover:border-blue-400 hover:text-blue-400">Instagram</a></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-slate-950 py-7 text-slate-400">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-center text-sm sm:px-6 md:flex-row md:text-left lg:px-8"><p>© 2025 TechSolutions. Todos os direitos reservados.</p><div class="flex gap-5"><a href="#" class="hover:text-white">Política de Privacidade</a><a href="#" class="hover:text-white">Termos de Uso</a></div></div>
+  </footer>
+
+  <div id="exclusive-modal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="relative w-full max-w-md rounded-2xl bg-white p-7 shadow-2xl sm:p-8">
+      <button id="close-modal" class="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-lg text-2xl text-slate-500 hover:bg-slate-100" aria-label="Fechar modal">&times;</button>
+      <div class="mb-7 pr-10"><span class="text-sm font-bold uppercase tracking-widest text-blue-600">Área restrita</span><h2 id="modal-title" class="mt-2 text-2xl font-bold">Acesso Exclusivo</h2><p class="mt-2 text-sm text-slate-600">Entre com suas credenciais corporativas.</p></div>
+      <form id="exclusive-form" class="space-y-4">
+        <label class="sr-only" for="email_exclusivo">E-mail corporativo</label><input class="min-h-11 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500" id="email_exclusivo" name="email_exclusivo" type="email" placeholder="Seu email corporativo" required>
+        <label class="sr-only" for="senha_exclusivo">Senha</label><input class="min-h-11 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500" id="senha_exclusivo" name="senha_exclusivo" type="password" placeholder="Senha de acesso" required>
+        <button class="min-h-11 w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-blue-700" type="submit">Entrar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const closeMenu = () => { mobileMenu.classList.remove('nav-open'); menuToggle.setAttribute('aria-expanded', 'false'); };
+    menuToggle.addEventListener('click', () => { const open = mobileMenu.classList.toggle('nav-open'); menuToggle.setAttribute('aria-expanded', String(open)); });
+    mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+
+    const modal = document.getElementById('exclusive-modal');
+    const closeModalButton = document.getElementById('close-modal');
+    let lastFocusedElement;
+    function openModal() { lastFocusedElement = document.activeElement; modal.classList.remove('hidden'); modal.classList.add('flex'); document.body.classList.add('overflow-hidden'); closeMenu(); setTimeout(() => document.getElementById('email_exclusivo').focus(), 0); }
+    function closeModal() { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.classList.remove('overflow-hidden'); if (lastFocusedElement) lastFocusedElement.focus(); }
+    document.querySelectorAll('[data-open-modal]').forEach(button => button.addEventListener('click', openModal));
+    closeModalButton.addEventListener('click', closeModal);
+    modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && !modal.classList.contains('hidden')) closeModal(); });
+
+    document.getElementById('contact-form').addEventListener('submit', event => { event.preventDefault(); alert('Mensagem enviada com sucesso! (simulação)'); event.target.reset(); });
+    document.getElementById('exclusive-form').addEventListener('submit', event => { event.preventDefault(); alert('Área exclusiva simulada. Bem-vindo!'); event.target.reset(); closeModal(); });
+
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } }), { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
+  </script>
+</body>
+</html>
